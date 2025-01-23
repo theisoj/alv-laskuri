@@ -8,16 +8,26 @@
     <style>
       body {
         font-family: "Poppins", sans-serif;
-        padding: 20px;
-        max-width: 500px;
-        margin: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
         background-color: #f4f4f9;
       }
       h1 {
-        color: #1741ef;
+        color: #000000;
+      }
+      .vatForm {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 75%;
       }
       .form-group {
         margin-bottom: 15px;
+        width: 100%;
       }
       label {
         display: block;
@@ -35,7 +45,7 @@
       button {
         width: 100%;
         padding: 10px;
-        background-color: #1741ef;
+        background-color: #000000;
         color: #fff;
         font-size: 16px;
         border: none;
@@ -44,11 +54,12 @@
         font-family: inherit;
       }
       button:hover {
-        background-color: #122dbf;
+        background-color: #494949;
       }
       .result-box {
         margin-top: 20px;
         padding: 10px;
+        width: 75%;
         border: 1px solid #ccc;
         background-color: #fff;
         border-radius: 4px;
@@ -61,7 +72,7 @@
   <body>
     <h1>Arvonlisäverolaskuri</h1>
 
-    <form id="vatCalculatorForm">
+    <form id="vatCalculatorForm" class="vatForm">
       <div class="form-group">
         <label for="taxFreeInput">Arvonlisäveroton hinta (€)</label>
         <input
@@ -195,8 +206,6 @@
 
           // Näytä laatikko
           resultBox.classList.remove("hidden")
-          taxFreeInput.disabled = true
-          vatAmountInput.disabled = true
         } else if (!isNaN(taxFree) && !isNaN(vatAmount)) {
           // Jos veroton hinta ja ALV euroina ovat syötetty
           const totalFromTaxFree = taxFree + vatAmount
@@ -213,8 +222,6 @@
 
           // Näytä laatikko
           resultBox.classList.remove("hidden")
-          vatRateInput.disabled = true
-          priceInput.disabled = true
         } else if (!isNaN(vatAmount) && !isNaN(vatRate)) {
           // Jos ALV euroina ja ALV-prosentti ovat syötetty
           const calculatedTaxFree = vatAmount / (vatRate / 100)
@@ -231,8 +238,6 @@
 
           // Näytä laatikko
           resultBox.classList.remove("hidden")
-          taxFreeInput.disabled = true
-          priceInput.disabled = true
         } else {
           // Tyhjennä tuloskentät ja piilota laatikko
           taxFreeResult.textContent = "-"
@@ -241,12 +246,6 @@
           vatRateResult.textContent = "-"
 
           resultBox.classList.add("hidden")
-
-          // Aktivoi kaikki kentät
-          taxFreeInput.disabled = false
-          priceInput.disabled = false
-          vatRateInput.disabled = false
-          vatAmountInput.disabled = false
         }
       }
 
