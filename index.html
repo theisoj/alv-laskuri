@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arvonlisäverolaskuri</title>
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        padding: 20px;
+        max-width: 500px;
+        margin: auto;
+        background-color: #f4f4f9;
+      }
+      h1 {
+        color: #1741ef;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input[type="number"] {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-family: inherit;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        background-color: #1741ef;
+        color: #fff;
+        font-size: 16px;
+        border: none;
+        border-radius: 9999px;
+        cursor: pointer;
+        font-family: inherit;
+      }
+      button:hover {
+        background-color: #122dbf;
+      }
+      .result-box {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        border-radius: 4px;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Arvonlisäverolaskuri</h1>
+
+    <form id="vatCalculatorForm">
+      <div class="form-group">
+        <label for="taxFreeInput">Arvonlisäveroton hinta (€)</label>
+        <input
+          type="number"
+          id="taxFreeInput"
+          step="0.01"
+          placeholder="Syötä arvonlisäveroton hinta"
+        />
+      </div>
+      <div class="form-group">
+        <label for="priceInput">Arvonlisäverollinen hinta (€)</label>
+        <input
+          type="number"
+          id="priceInput"
+          step="0.01"
+          placeholder="Syötä arvonlisäverollinen hinta"
+        />
+      </div>
+      <div class="form-group">
+        <label for="vatAmountInput">Arvonlisävero euroina (€)</label>
+        <input
+          type="number"
+          id="vatAmountInput"
+          step="0.01"
+          placeholder="Syötä ALV euroina"
+        />
+      </div>
+      <div class="form-group">
+        <label for="vatRateInput">Arvonlisäveroprosentti (%)</label>
+        <input
+          type="number"
+          id="vatRateInput"
+          step="0.01"
+          placeholder="Syötä ALV-prosentti"
+        />
+      </div>
+      <button type="submit" id="calculateBtn">Laske</button>
+    </form>
+
+    <div id="result" class="result-box hidden">
+      <p>
+        <strong>Arvonlisäveroton hinta:</strong>
+        <span id="taxFreeResult">-</span> €
+      </p>
+      <p>
+        <strong>Arvonlisäverollinen hinta:</strong>
+        <span id="priceWithVATResult">-</span> €
+      </p>
+      <p>
+        <strong>Arvonlisävero euroina:</strong>
+        <span id="vatAmountResult">-</span> €
+      </p>
+      <p>
+        <strong>Arvonlisäveroprosentti:</strong>
+        <span id="vatRateResult">-</span> %
+      </p>
+    </div>
+    <script>
+      // Oikeat viitteet HTML-elementteihin
+      const priceInput = document.getElementById("priceInput") // Verollinen hinta -kenttä
+      const vatRateInput = document.getElementById("vatRateInput") // ALV-prosentti -kenttä
+      const taxFreeInput = document.getElementById("taxFreeInput") // Veroton hinta -kenttä
+      const vatAmountInput = document.getElementById("vatAmountInput") // ALV euroina -kenttä
+      const calculateVATButton = document.getElementById("calculateBtn") // Laskupainike
+
+      const vatForm = document.getElementById("vatCalculatorForm")
+
+      // Laskufunktio
+      function calculateVAT(price, vatRate) {
+        const vatAmount = price * (vatRate / 100)
+        const totalPrice = price + vatAmount
+        return { vatAmount, totalPrice }
+      }
+
+      function updateFieldsState() {
+        const price = parseFloat(priceInput.value.replace(",", "."))
+        const vatRate = parseFloat(vatRateInput.value)
+        const taxFree = parseFloat(taxFreeInput.value)
+        const vatAmount = parseFloat(vatAmountInput.value)
+
+        if (!isNaN(price) && !isNaN(vatRate)) {
+          // Jos verollinen hinta ja ALV-prosentti on syötetty
+          taxFreeInput.disabled = true
+          vatAmountInput.disabled = true
+        } else if (!isNaN(taxFree) && !isNaN(price)) {
+          // Jos veroton hinta ja verollinen hinta ovat syötetty
+          vatAmountInput.disabled = true
+          vatRateInput.disabled = true
+        } else if (!isNaN(vatAmount) && !isNaN(vatRate)) {
+          // Jos ALV euroina ja ALV-prosentti ovat syötetty
+          taxFreeInput.disabled = true
+          priceInput.disabled = true
+        } else {
+          // Aktivoi kaikki kentät, jos mikään kombinaatio ei ole syötetty
+          taxFreeInput.disabled = false
+          vatRateInput.disabled = false
+          vatAmountInput.disabled = false
+          priceInput.disabled = false
+        }
+      }
+
+      function calculateVatFunc() {
+        const price = parseFloat(priceInput.value.replace(",", "."))
+        const vatRate = parseFloat(vatRateInput.value)
+        const taxFree = parseFloat(taxFreeInput.value.replace(",", "."))
+        const vatAmount = parseFloat(vatAmountInput.value.replace(",", "."))
+
+        const resultBox = document.getElementById("result")
+        const taxFreeResult = document.getElementById("taxFreeResult")
+        const priceWithVATResult = document.getElementById("priceWithVATResult")
+        const vatAmountResult = document.getElementById("vatAmountResult")
+        const vatRateResult = document.getElementById("vatRateResult")
+
+        if (!isNaN(price) && !isNaN(vatRate)) {
+          // Laske ALV ja näytä tulos
+          const { vatAmount: calculatedVatAmount, totalPrice } = calculateVAT(
+            price,
+            vatRate
+          )
+
+          taxFreeResult.textContent = (price - calculatedVatAmount)
+            .toFixed(2)
+            .replace(".", ",")
+          priceWithVATResult.textContent = totalPrice
+            .toFixed(2)
+            .replace(".", ",")
+          vatAmountResult.textContent = calculatedVatAmount
+            .toFixed(2)
+            .replace(".", ",")
+          vatRateResult.textContent = vatRate.toFixed(2).replace(".", ",")
+
+          // Näytä laatikko
+          resultBox.classList.remove("hidden")
+          taxFreeInput.disabled = true
+          vatAmountInput.disabled = true
+        } else if (!isNaN(taxFree) && !isNaN(vatAmount)) {
+          // Jos veroton hinta ja ALV euroina ovat syötetty
+          const totalFromTaxFree = taxFree + vatAmount
+          const rateFromTaxFree = (vatAmount / taxFree) * 100
+
+          taxFreeResult.textContent = taxFree.toFixed(2).replace(".", ",")
+          priceWithVATResult.textContent = totalFromTaxFree
+            .toFixed(2)
+            .replace(".", ",")
+          vatAmountResult.textContent = vatAmount.toFixed(2).replace(".", ",")
+          vatRateResult.textContent = rateFromTaxFree
+            .toFixed(2)
+            .replace(".", ",")
+
+          // Näytä laatikko
+          resultBox.classList.remove("hidden")
+          vatRateInput.disabled = true
+          priceInput.disabled = true
+        } else if (!isNaN(vatAmount) && !isNaN(vatRate)) {
+          // Jos ALV euroina ja ALV-prosentti ovat syötetty
+          const calculatedTaxFree = vatAmount / (vatRate / 100)
+          const calculatedPrice = calculatedTaxFree + vatAmount
+
+          taxFreeResult.textContent = calculatedTaxFree
+            .toFixed(2)
+            .replace(".", ",")
+          priceWithVATResult.textContent = calculatedPrice
+            .toFixed(2)
+            .replace(".", ",")
+          vatAmountResult.textContent = vatAmount.toFixed(2).replace(".", ",")
+          vatRateResult.textContent = vatRate.toFixed(2).replace(".", ",")
+
+          // Näytä laatikko
+          resultBox.classList.remove("hidden")
+          taxFreeInput.disabled = true
+          priceInput.disabled = true
+        } else {
+          // Tyhjennä tuloskentät ja piilota laatikko
+          taxFreeResult.textContent = "-"
+          priceWithVATResult.textContent = "-"
+          vatAmountResult.textContent = "-"
+          vatRateResult.textContent = "-"
+
+          resultBox.classList.add("hidden")
+
+          // Aktivoi kaikki kentät
+          taxFreeInput.disabled = false
+          priceInput.disabled = false
+          vatRateInput.disabled = false
+          vatAmountInput.disabled = false
+        }
+      }
+
+      vatForm.addEventListener("submit", (e) => {
+        e.preventDefault()
+        calculateVatFunc()
+      })
+
+      // Lisää tapahtumankuuntelijat syöttökentille
+      priceInput.addEventListener("input", updateFieldsState)
+      vatRateInput.addEventListener("input", updateFieldsState)
+      taxFreeInput.addEventListener("input", updateFieldsState)
+      vatAmountInput.addEventListener("input", updateFieldsState)
+    </script>
+  </body>
+</html>
